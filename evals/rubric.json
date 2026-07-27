@@ -8,7 +8,8 @@
     "ignored": ["agent self-reported completion"]
   },
   "reliabilityScore": {
-    "start": 100,
+    "minimum": 0,
+    "maximum": 100,
     "failedValidationsMaxPenalty": 50,
     "scopeViolationPenaltyEach": 10,
     "scopeViolationMaxPenalty": 25,

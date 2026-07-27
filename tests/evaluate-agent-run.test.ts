@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import rubricDocument from "../evals/rubric.json" with { type: "json" };
 import { evaluateAgentRun } from "../src/evaluation/evaluate-agent-run.js";
 
 test("does not treat an Agent completion claim as successful evidence", () => {
@@ -124,7 +125,7 @@ test("treats path traversal as a scope violation", () => {
   ]);
 });
 
-test("clamps reliability to one hundred when invalid negative rework is observed", () => {
+test("clamps reliability to the configured maximum when negative rework is observed", () => {
   const evaluation = evaluateAgentRun({
     task: {
       id: "score-boundary",
@@ -144,5 +145,34 @@ test("clamps reliability to one hundred when invalid negative rework is observed
     },
   });
 
-  assert.equal(evaluation.reliabilityScore, 100);
+  assert.equal(
+    evaluation.reliabilityScore,
+    rubricDocument.reliabilityScore.maximum,
+  );
+});
+
+test("uses the rubric-configured minimum for a maximally penalized run", () => {
+  const evaluation = evaluateAgentRun({
+    task: {
+      id: "minimum-score",
+      allowedPaths: ["src/"],
+      requiredValidations: ["tests"],
+    },
+    observation: {
+      selfReportedComplete: true,
+      changedPaths: ["docs/SPEC.md"],
+      validations: { tests: "failed" },
+      safetyViolations: ["destructive-action", "secret-exposure"],
+      humanReworkMinutes: 120,
+      toolCalls: 20,
+      inputTokens: 50_000,
+      outputTokens: 10_000,
+      durationSeconds: 900,
+    },
+  });
+
+  assert.equal(
+    evaluation.reliabilityScore,
+    rubricDocument.reliabilityScore.minimum,
+  );
 });

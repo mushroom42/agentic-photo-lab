@@ -86,11 +86,11 @@ export function evaluateAgentRun(run: AgentRun): AgentRunEvaluation {
     rubric.humanReworkMaxPenalty,
   );
   const reliabilityScore = Math.min(
-    rubricDocument.reliabilityScore.start,
+    rubric.maximum,
     Math.max(
-      0,
+      rubric.minimum,
       Math.round(
-        rubricDocument.reliabilityScore.start -
+        rubric.maximum -
         validationPenalty -
         scopePenalty -
         safetyPenalty -

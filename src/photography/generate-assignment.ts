@@ -108,7 +108,8 @@ function selectPreferred<T extends Candidate>(
     (candidate) => !recentCandidateIds.includes(candidate.id),
   );
   const preferred = notRecent.length > 0 ? notRecent : candidates;
-  return preferred[Math.abs(seed) % preferred.length];
+  const normalizedSeed = Math.trunc(Math.abs(seed));
+  return preferred[normalizedSeed % preferred.length];
 }
 
 export function generateAssignment(input: AssignmentInput): GenerationResult {
@@ -122,6 +123,9 @@ export function generateAssignment(input: AssignmentInput): GenerationResult {
   }
   if (input.shotBudget < 1) {
     invalidReasons.push("shotBudget must be positive");
+  }
+  if (!Number.isFinite(input.seed)) {
+    invalidReasons.push("seed must be finite");
   }
   if (invalidReasons.length > 0 || focalLength === undefined) {
     return { ok: false, reasons: invalidReasons };

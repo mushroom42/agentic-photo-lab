@@ -88,3 +88,16 @@ test("does not confuse available film frames with the shoot budget", () => {
 
   assert.equal(result.assignment.maxShots, 5);
 });
+
+test("normalizes a finite fractional seed to a valid deterministic choice", () => {
+  const result = generateAssignment({
+    scene: "indoor",
+    film: { colorMode: "monochrome", iso: 400, framesRemaining: 12 },
+    lens: { focalLengths: [50] },
+    shotBudget: 8,
+    recentCandidateIds: [],
+    seed: 0.5,
+  });
+
+  assert.equal(result.ok, true);
+});
