@@ -28,6 +28,13 @@
 - Detection: Compare changed paths with the task contract.
 - Guardrail: Evaluate every run for scope violations.
 
+## FM-005: Source/runtime resolution mismatch
+
+- Symptom: TypeScript compiles, but direct test execution cannot resolve NodeNext `.js` imports to `.ts` sources.
+- Cause: The source runner and production module resolver follow different rules.
+- Detection: The first public test fails before reaching assertions with `ERR_MODULE_NOT_FOUND`.
+- Guardrail: Compile before executing tests so validation uses production module resolution.
+
 ## Recording template
 
 ```yaml

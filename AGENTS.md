@@ -18,3 +18,17 @@ Read `CONTEXT.md`, `docs/SPEC.md`, and relevant ADRs before changing behavior.
 - Record recurring agent failures in `docs/FAILURE_MODES.md`.
 - Run `npm run typecheck` and `npm test` before reporting completion.
 - External writes, dependency changes, data migrations, and releases require human approval.
+
+## Agent skills
+
+### Issue tracker
+
+Issues and specs use local Markdown under `.scratch/<feature-slug>/`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The tracker uses the five default canonical triage roles. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This is a single-context repository using root `CONTEXT.md` and `docs/adr/`. See `docs/agents/domain.md`.

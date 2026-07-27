@@ -1,0 +1,59 @@
+[
+  {
+    "configuration": "baseline-prompt",
+    "task": {
+      "id": "add-blue-hour-rule",
+      "allowedPaths": [
+        "src/photography/",
+        "tests/generate-assignment.test.ts"
+      ],
+      "requiredValidations": ["typecheck", "tests"]
+    },
+    "observation": {
+      "selfReportedComplete": true,
+      "changedPaths": [
+        "src/photography/generate-assignment.ts",
+        "tests/generate-assignment.test.ts",
+        "README.md"
+      ],
+      "validations": {
+        "typecheck": "passed",
+        "tests": "failed"
+      },
+      "safetyViolations": [],
+      "humanReworkMinutes": 18,
+      "toolCalls": 14,
+      "inputTokens": 18000,
+      "outputTokens": 5200,
+      "durationSeconds": 310
+    }
+  },
+  {
+    "configuration": "scoped-context-plus-skill",
+    "task": {
+      "id": "add-blue-hour-rule",
+      "allowedPaths": [
+        "src/photography/",
+        "tests/generate-assignment.test.ts"
+      ],
+      "requiredValidations": ["typecheck", "tests"]
+    },
+    "observation": {
+      "selfReportedComplete": true,
+      "changedPaths": [
+        "src/photography/generate-assignment.ts",
+        "tests/generate-assignment.test.ts"
+      ],
+      "validations": {
+        "typecheck": "passed",
+        "tests": "passed"
+      },
+      "safetyViolations": [],
+      "humanReworkMinutes": 2,
+      "toolCalls": 9,
+      "inputTokens": 12000,
+      "outputTokens": 3100,
+      "durationSeconds": 185
+    }
+  }
+]

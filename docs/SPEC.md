@@ -27,6 +27,18 @@ Given a task contract and observed run evidence:
 4. Calculate a documented reliability score from observable evidence.
 5. Never infer success from an Agent's self-reported completion message.
 
+### Baseline reliability score
+
+The score starts at 100 and subtracts observable penalties:
+
+- failed required validations: proportional penalty up to 50;
+- out-of-scope changed paths: 10 each, capped at 25;
+- safety violations: 25 each, capped at 50;
+- human rework: 1 point per 2 minutes, capped at 15.
+
+The final score is rounded and clamped to 0–100. It is an experiment metric,
+not a substitute for the binary success gate.
+
 ## Experiment assets
 
 The repository must include:

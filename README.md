@@ -32,3 +32,19 @@ docs/            Spec, ADRs, autonomy, context, and failures
 ```
 
 Start with [CONTEXT.md](CONTEXT.md) and [docs/SPEC.md](docs/SPEC.md).
+
+## Experiment workflow
+
+1. Choose a task from `evals/tasks.json`.
+2. Prepare a task-scoped context package.
+3. Pin the model, tools, repository commit, prompt, and skills.
+4. Run the Agent from that commit.
+5. Record observations in the run dataset before human corrections.
+6. Run `npm run benchmark`.
+7. Classify failures and turn recurring ones into tests or guardrails.
+
+The checked-in sample runs are illustrative fixtures. Replace them with
+sanitized observations from real runs before drawing conclusions.
+
+See [docs/EXPERIMENT_METHOD.md](docs/EXPERIMENT_METHOD.md) for the controlled
+comparison protocol.

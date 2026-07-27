@@ -1,0 +1,39 @@
+[
+  {
+    "id": "add-blue-hour-rule",
+    "goal": "Add a blue-hour exercise without allowing it indoors.",
+    "allowedPaths": [
+      "src/photography/",
+      "tests/generate-assignment.test.ts"
+    ],
+    "requiredValidations": ["typecheck", "tests"],
+    "acceptance": [
+      "The exercise can appear for city color-film inputs.",
+      "The exercise never appears for indoor inputs.",
+      "A public behavior test covers both observations."
+    ],
+    "stopConditions": [
+      "The change requires modifying the public input schema.",
+      "The spec conflicts with an existing ADR."
+    ]
+  },
+  {
+    "id": "diagnose-monochrome-regression",
+    "goal": "Find why a monochrome input can receive a color-dependent task.",
+    "allowedPaths": [
+      "src/photography/",
+      "tests/generate-assignment.test.ts",
+      "docs/FAILURE_MODES.md"
+    ],
+    "requiredValidations": ["typecheck", "tests"],
+    "acceptance": [
+      "A regression test fails before the fix.",
+      "The fix is enforced deterministically rather than prompt-only.",
+      "The recurring failure is recorded."
+    ],
+    "stopConditions": [
+      "No reproduction can be established.",
+      "The failure requires changing product requirements."
+    ]
+  }
+]
