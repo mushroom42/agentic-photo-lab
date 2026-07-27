@@ -6,11 +6,12 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
+    "resolveJsonModule": true,
     "outDir": "dist",
     "rootDir": ".",
     "declaration": true,
     "sourceMap": true
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts"],
+  "include": ["src/**/*.ts", "tests/**/*.ts", "evals/rubric.json"],
   "exclude": ["dist", "node_modules"]
 }

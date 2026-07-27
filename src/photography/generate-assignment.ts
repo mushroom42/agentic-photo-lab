@@ -11,15 +11,22 @@ export interface AssignmentInput {
   lens: {
     focalLengths: number[];
   };
+  shotBudget: number;
   recentCandidateIds: string[];
   seed: number;
+}
+
+export interface AssignmentComponent {
+  id: string;
+  title: string;
+  instruction: string;
 }
 
 export interface Assignment {
   id: string;
   scene: Scene;
-  title: string;
-  instruction: string;
+  theme: AssignmentComponent;
+  technique: AssignmentComponent;
   requiresColor: boolean;
   focalLength: number;
   maxShots: number;
@@ -34,11 +41,14 @@ interface Candidate {
   scenes: Scene[];
   title: string;
   instruction: string;
-  requiresColor: boolean;
   maxShots: number;
 }
 
-const candidates: Candidate[] = [
+interface ThemeCandidate extends Candidate {
+  requiresColor: boolean;
+}
+
+const themes: ThemeCandidate[] = [
   {
     id: "negative-space",
     scenes: ["indoor", "city", "forest", "travel"],
@@ -65,6 +75,42 @@ const candidates: Candidate[] = [
   },
 ];
 
+const techniques: Candidate[] = [
+  {
+    id: "symmetry",
+    scenes: ["indoor", "city", "travel"],
+    title: "Symmetry",
+    instruction: "Align the frame around a clear axis of symmetry.",
+    maxShots: 12,
+  },
+  {
+    id: "frame-within-frame",
+    scenes: ["indoor", "city", "forest", "travel"],
+    title: "Frame within a frame",
+    instruction: "Use an opening, branch, or shadow to contain the subject.",
+    maxShots: 10,
+  },
+  {
+    id: "layering",
+    scenes: ["city", "forest", "travel"],
+    title: "Layering",
+    instruction: "Build distinct foreground, middle, and background layers.",
+    maxShots: 12,
+  },
+];
+
+function selectPreferred<T extends Candidate>(
+  candidates: T[],
+  recentCandidateIds: string[],
+  seed: number,
+): T | undefined {
+  const notRecent = candidates.filter(
+    (candidate) => !recentCandidateIds.includes(candidate.id),
+  );
+  const preferred = notRecent.length > 0 ? notRecent : candidates;
+  return preferred[Math.abs(seed) % preferred.length];
+}
+
 export function generateAssignment(input: AssignmentInput): GenerationResult {
   const focalLength = input.lens.focalLengths[0];
   const invalidReasons: string[] = [];
@@ -74,34 +120,58 @@ export function generateAssignment(input: AssignmentInput): GenerationResult {
   if (input.film.framesRemaining < 1) {
     invalidReasons.push("film.framesRemaining must be positive");
   }
+  if (input.shotBudget < 1) {
+    invalidReasons.push("shotBudget must be positive");
+  }
   if (invalidReasons.length > 0 || focalLength === undefined) {
     return { ok: false, reasons: invalidReasons };
   }
 
-  const eligible = candidates.filter(
-    (candidate) =>
-      candidate.scenes.includes(input.scene) &&
-      !(input.film.colorMode === "monochrome" && candidate.requiresColor),
+  const eligibleThemes = themes.filter(
+    (theme) =>
+      theme.scenes.includes(input.scene) &&
+      !(input.film.colorMode === "monochrome" && theme.requiresColor),
   );
-  const notRecent = eligible.filter(
-    (candidate) => !input.recentCandidateIds.includes(candidate.id),
+  const eligibleTechniques = techniques.filter((technique) =>
+    technique.scenes.includes(input.scene),
   );
-  const preferred = notRecent.length > 0 ? notRecent : eligible;
-  const candidate = preferred[Math.abs(input.seed) % preferred.length];
-  if (candidate === undefined) {
+  const theme = selectPreferred(
+    eligibleThemes,
+    input.recentCandidateIds,
+    input.seed,
+  );
+  const technique = selectPreferred(
+    eligibleTechniques,
+    input.recentCandidateIds,
+    input.seed + 1,
+  );
+  if (theme === undefined || technique === undefined) {
     return { ok: false, reasons: ["No candidate satisfies the hard constraints"] };
   }
 
   return {
     ok: true,
     assignment: {
-      id: candidate.id,
+      id: `${theme.id}:${technique.id}`,
       scene: input.scene,
-      title: candidate.title,
-      instruction: candidate.instruction,
-      requiresColor: candidate.requiresColor,
+      theme: {
+        id: theme.id,
+        title: theme.title,
+        instruction: theme.instruction,
+      },
+      technique: {
+        id: technique.id,
+        title: technique.title,
+        instruction: technique.instruction,
+      },
+      requiresColor: theme.requiresColor,
       focalLength,
-      maxShots: Math.min(candidate.maxShots, input.film.framesRemaining),
+      maxShots: Math.min(
+        theme.maxShots,
+        technique.maxShots,
+        input.film.framesRemaining,
+        input.shotBudget,
+      ),
     },
   };
 }

@@ -91,7 +91,58 @@ test("calculates reliability from validation, scope, safety, and rework evidence
   assert.deepEqual(evaluation.metrics, {
     humanReworkMinutes: 10,
     toolCalls: 12,
+    inputTokens: 15_000,
+    outputTokens: 4_000,
     totalTokens: 19_000,
     durationSeconds: 240,
   });
+});
+
+test("treats path traversal as a scope violation", () => {
+  const evaluation = evaluateAgentRun({
+    task: {
+      id: "path-boundary",
+      allowedPaths: ["src/photography/"],
+      requiredValidations: ["tests"],
+    },
+    observation: {
+      selfReportedComplete: true,
+      changedPaths: ["src/photography/../evaluation/evaluate-agent-run.ts"],
+      validations: { tests: "passed" },
+      safetyViolations: [],
+      humanReworkMinutes: 0,
+      toolCalls: 2,
+      inputTokens: 100,
+      outputTokens: 100,
+      durationSeconds: 5,
+    },
+  });
+
+  assert.equal(evaluation.success, false);
+  assert.deepEqual(evaluation.scopeViolations, [
+    "src/photography/../evaluation/evaluate-agent-run.ts",
+  ]);
+});
+
+test("clamps reliability to one hundred when invalid negative rework is observed", () => {
+  const evaluation = evaluateAgentRun({
+    task: {
+      id: "score-boundary",
+      allowedPaths: ["src/"],
+      requiredValidations: ["tests"],
+    },
+    observation: {
+      selfReportedComplete: true,
+      changedPaths: ["src/demo.ts"],
+      validations: { tests: "passed" },
+      safetyViolations: [],
+      humanReworkMinutes: -20,
+      toolCalls: 1,
+      inputTokens: 100,
+      outputTokens: 100,
+      durationSeconds: 1,
+    },
+  });
+
+  assert.equal(evaluation.reliabilityScore, 100);
 });

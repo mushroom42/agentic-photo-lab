@@ -14,15 +14,18 @@ conditions and eligible candidates.
 - scene
 - film color mode, ISO, and frames remaining
 - available focal lengths
+- shoot-specific shot budget
 - recent candidate IDs
-- eligible candidates already filtered by deterministic code
+- eligible themes already filtered by deterministic code
+- eligible techniques already filtered by deterministic code
 
 # Hard requirements
 
-- Select only an ID present in `eligibleCandidates`.
+- Select one ID from `eligibleThemes` and one from `eligibleTechniques`.
 - Do not invent equipment, locations, or remaining frames.
-- `maxShots` must be positive and no larger than `framesRemaining`.
-- If `eligibleCandidates` is empty, return `status: "no-match"`.
+- `maxShots` must be positive and no larger than either `framesRemaining` or
+  `shotBudget`.
+- If either eligible collection is empty, return `status: "no-match"`.
 
 # Soft preferences
 
@@ -36,7 +39,8 @@ Return JSON only:
 ```json
 {
   "status": "selected",
-  "candidateId": "negative-space",
+  "themeId": "negative-space",
+  "techniqueId": "frame-within-frame",
   "maxShots": 8,
   "reason": "One sentence grounded in the supplied conditions."
 }
@@ -55,4 +59,4 @@ or:
 
 - Monochrome film with a color-dependent candidate.
 - A 36-shot task when only 12 frames remain.
-- A candidate ID not present in `eligibleCandidates`.
+- A theme or technique ID absent from its eligible collection.

@@ -8,6 +8,7 @@ test("generates an executable monochrome indoor assignment", () => {
     scene: "indoor",
     film: { colorMode: "monochrome", iso: 400, framesRemaining: 12 },
     lens: { focalLengths: [50] },
+    shotBudget: 12,
     recentCandidateIds: [],
     seed: 42,
   });
@@ -26,6 +27,7 @@ test("can generate a color-observation assignment when color film supports it", 
     scene: "city",
     film: { colorMode: "color", iso: 200, framesRemaining: 24 },
     lens: { focalLengths: [35] },
+    shotBudget: 10,
     recentCandidateIds: [],
     seed: 1,
   });
@@ -33,7 +35,8 @@ test("can generate a color-observation assignment when color film supports it", 
   assert.equal(result.ok, true);
   if (!result.ok) return;
 
-  assert.equal(result.assignment.id, "red-accent");
+  assert.equal(result.assignment.theme.id, "red-accent");
+  assert.ok(result.assignment.technique.id.length > 0);
   assert.equal(result.assignment.requiresColor, true);
   assert.equal(result.assignment.focalLength, 35);
 });
@@ -43,6 +46,7 @@ test("prefers an eligible candidate that was not used recently", () => {
     scene: "city",
     film: { colorMode: "color", iso: 200, framesRemaining: 24 },
     lens: { focalLengths: [35] },
+    shotBudget: 10,
     recentCandidateIds: ["red-accent"],
     seed: 1,
   });
@@ -50,7 +54,7 @@ test("prefers an eligible candidate that was not used recently", () => {
   assert.equal(result.ok, true);
   if (!result.ok) return;
 
-  assert.equal(result.assignment.id, "negative-space");
+  assert.equal(result.assignment.theme.id, "negative-space");
 });
 
 test("reports why no assignment can be generated instead of inventing one", () => {
@@ -58,6 +62,7 @@ test("reports why no assignment can be generated instead of inventing one", () =
     scene: "forest",
     film: { colorMode: "monochrome", iso: 400, framesRemaining: 0 },
     lens: { focalLengths: [50] },
+    shotBudget: 12,
     recentCandidateIds: [],
     seed: 9,
   });
@@ -66,4 +71,20 @@ test("reports why no assignment can be generated instead of inventing one", () =
   if (result.ok) return;
 
   assert.deepEqual(result.reasons, ["film.framesRemaining must be positive"]);
+});
+
+test("does not confuse available film frames with the shoot budget", () => {
+  const result = generateAssignment({
+    scene: "city",
+    film: { colorMode: "color", iso: 400, framesRemaining: 36 },
+    lens: { focalLengths: [50] },
+    shotBudget: 5,
+    recentCandidateIds: [],
+    seed: 4,
+  });
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+
+  assert.equal(result.assignment.maxShots, 5);
 });
